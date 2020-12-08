@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+    <link rel="stylesheet" href="../index.css">
+    <title>Document</title>
+
+</head>
+<body>
+
+    <div class="issMapIntro">
+        <h1>Where is the ISS?</h1>
+        
+        <h3>Location of ISS space shuttle</h3>
+
+        <p>Latitude: <span id="lat"></span><br>
+            Longitude: <span id="lon"></span>
+        </p>
+    </div>
+
+    <div id="issMap"></div>
+
+
+    <script>
+
+
+
+
+        const mymap = L.map('issMap').setView([0, 0], 1);
+        //making a Map and tiles
+        const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        const attribution = 
+        '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+        //Making marker with custom icon.
+        const tiles = L.tileLayer(tileUrl, {attribution});
+        tiles.addTo(mymap);
+
+        var issIcon = L.icon({
+            iconUrl: 'station.png',
+            iconSize: [50, 32],
+            iconAnchor: [25, 16],
+        });
+
+        var homeIcon = L.icon({
+            iconUrl: 'home.svg.png',
+            iconSize: [25, 20],
+            iconAnchor: [25, 16],
+        });
+
+        const marker = L.marker([0, 0,], {icon: issIcon}).addTo(mymap);
+
+        const homeMarker = L.marker([0, 0,], {icon: homeIcon}).addTo(mymap);
+
+        
+
+
+
+
+        const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
+        async function getISS() {
+            const response = await fetch(api_url);
+            const data = await response.json();
+
+            const {latitude, longitude} = data;
+
+
+
+
+            // L.marker([latitude, longitude]).addTo(mymap);
+            marker.setLatLng([latitude, longitude]);
+
+            document.getElementById('lat').textContent = latitude;
+            document.getElementById('lon').textContent = longitude;
+
+
+
+        }
+        getISS();
+
+        //find User Location
+
+        window.onload = () => {navigator.geolocation.getCurrentPosition(showPosition, error)};
+
+        function showPosition(position){
+
+            let latitude = position.coords.latitude;
+            let longitude = position.coords.longitude;
+            homeMarker.setLatLng([latitude, longitude]);
+
+            console.log("Your Current Latitude:"+ latitude);
+            console.log("Your Current Longitude:" + longitude);
+
+        }
+
+        function error() {
+            writeToDocument.innerHTML = "Cannot find position or not supposed by browser."
+        };
+
+        
+
+
+    </script>
+</body>
+</html>
